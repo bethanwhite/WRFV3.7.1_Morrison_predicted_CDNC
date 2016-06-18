@@ -65,7 +65,8 @@ CONTAINS
       WSM6SCHEME, ETAMPNEW, THOMPSON, THOMPSONAERO,                     &
       MORR_TWO_MOMENT, GSFCGCESCHEME, WDM5SCHEME, WDM6SCHEME,           &
       NSSL_2MOM, NSSL_2MOMCCN, NSSL_1MOM, NSSL_1MOMLFO,                 &
-      MILBRANDT2MOM , CAMMGMPSCHEME, FAST_KHAIN_LYNN, FULL_KHAIN_LYNN    !,MILBRANDT3MOM, NSSL_3MOM
+      MILBRANDT2MOM , CAMMGMPSCHEME, FAST_KHAIN_LYNN, FULL_KHAIN_LYNN,  & !,MILBRANDT3MOM, NSSL_3MOM
+      MORR_TWO_MOMENT_PREDICTCDNC                                       ! BAW implement Morrison scheme w/ predicted CDNC
 
    IMPLICIT NONE
 !======================================================================
@@ -872,6 +873,14 @@ CONTAINS
        xrho_g = 400.
        if (mpuse_hail .eq. 1) xrho_g = 900.
        xam_g = 3.1415926536/6.0*xrho_g
+
+! BAW implement Morrison predicted CDNC scheme
+     CASE (MORR_TWO_MOMENT_PREDICTCDNC)
+       scheme_has_graupel = .true.
+       xrho_g = 400.
+       if (mpuse_hail .eq. 1) xrho_g = 900.
+       xam_g = 3.1415926536/6.0*xrho_g
+
 
      CASE (MILBRANDT2MOM)
        WRITE(outstring,*) 'GT-Debug, using Milbrandt2mom, which has 2-moment hail'

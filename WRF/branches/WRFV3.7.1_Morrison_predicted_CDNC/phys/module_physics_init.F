@@ -3526,6 +3526,7 @@ CALL lsm_mosaic_init(IVGTYP,config_flags%ISWATER,config_flags%ISURBAN,config_fla
    USE module_mp_full_sbm
    USE module_mp_fast_sbm
    USE module_mp_morr_two_moment
+   USE module_mp_graupel                          ! BAW implement Morrison predicted CDNC
    USE module_mp_milbrandt2mom
 !  USE module_mp_milbrandt3mom
    USE module_mp_wdm5
@@ -3650,6 +3651,11 @@ CALL lsm_mosaic_init(IVGTYP,config_flags%ISWATER,config_flags%ISURBAN,config_fla
 
      CASE (MORR_TWO_MOMENT)
          CALL morr_two_moment_init( config_flags%hail_opt )
+
+! BAW implement Morrison scheme with predicted CDNC
+     CASE (MORR_TWO_MOMENT_PREDICTCDNC)
+         CALL graupel_init
+
      CASE (MILBRANDT2MOM)
          CALL milbrandt2mom_init
 !      CASE (MILBRANDT3MOM)

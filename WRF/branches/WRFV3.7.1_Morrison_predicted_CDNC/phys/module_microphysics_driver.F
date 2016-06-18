@@ -100,13 +100,15 @@ SUBROUTINE microphysics_driver(                                          &
                     ,GSFCGCESCHEME, WDM5SCHEME, WDM6SCHEME, NSSL_2MOM, NSSL_2MOMCCN, NSSL_2MOMG  &
                     ,NSSL_1MOM,NSSL_1MOMLFO &
                     ,MILBRANDT2MOM !,MILBRANDT3MOM 
+
 #else
    USE module_state_description, ONLY :                                  &
                      KESSLERSCHEME, LINSCHEME, SBU_YLINSCHEME, WSM3SCHEME, WSM5SCHEME    &
                     ,WSM6SCHEME, ETAMPNEW, ETAMP_HR, THOMPSON, THOMPSONAERO, FAST_KHAIN_LYNN, MORR_TWO_MOMENT     &
                     ,GSFCGCESCHEME, WDM5SCHEME, WDM6SCHEME, NSSL_2MOM, NSSL_2MOMCCN, NSSL_2MOMG  &
                     ,NSSL_1MOM,NSSL_1MOMLFO & ! ,NSSL_3MOM       &
-                    ,MILBRANDT2MOM , CAMMGMPSCHEME,FULL_KHAIN_LYNN  !,MILBRANDT3MOM
+                    ,MILBRANDT2MOM , CAMMGMPSCHEME,FULL_KHAIN_LYNN  & !,MILBRANDT3MOM
+                    ,MORR_TWO_MOMENT_PREDICTCDNC ! BAW implement predicted CDNC Morrison scheme
 #endif
 
 #ifdef DM_PARALLEL
@@ -138,6 +140,7 @@ SUBROUTINE microphysics_driver(                                          &
    USE module_mp_fast_sbm
    USE module_mp_gsfcgce
    USE module_mp_morr_two_moment
+   USE module_mp_graupel ! BAW implement Morrison predicted CDNC scheme
    USE module_mp_wdm5
    USE module_mp_wdm6
    USE module_mp_milbrandt2mom
@@ -981,6 +984,58 @@ REAL, DIMENSION( ims:ime, kms:kme, jms:jme ),                        &
                                                                     )
         ELSE
            Call wrf_error_fatal( 'arguments not present for calling morrison two moment')
+        ENDIF
+
+! BAW implement Morrison predicted CDNC scheme
+    CASE (MORR_TWO_MOMENT_PREDICTCDNC)
+         CALL wrf_debug(100, 'microphysics_driver: calling morrison two moment with predicted cdnc')
+         IF (PRESENT (QV_CURR) .AND. PRESENT (QC_CURR) .AND. &
+             PRESENT (QR_CURR) .AND. PRESENT (QI_CURR) .AND. &
+         PRESENT (QS_CURR) .AND. PRESENT (QG_CURR) .AND. &
+         PRESENT (QR_CURR) .AND. PRESENT (QI_CURR) .AND. &
+         PRESENT (QNS_CURR) .AND. PRESENT (QNI_CURR).AND. &
+         PRESENT (QNC_CURR) .AND.                          & ! BAW implement Morrison predicted CDNC scheme
+         PRESENT (QNR_CURR) .AND. PRESENT (QNG_CURR).AND. &
+         PRESENT (MU) .AND. PRESENT (QSCUTEN).AND. &
+         PRESENT (QRCUTEN) .AND. PRESENT (QICUTEN).AND. &
+         PRESENT (RAINNC ) .AND. PRESENT (RAINNCV) .AND. &
+         PRESENT (Z      ) .AND.PRESENT ( W      )  ) THEN
+         CALL mp_graupel(                            &
+                     ITIMESTEP=itimestep,                &  !*
+                     TH=th,                              &  !*
+                     QV=qv_curr,                         &  !*
+                     QC=qc_curr,                         &  !*
+                     QR=qr_curr,                         &  !*
+                     QI=qi_curr,                         &  !*
+                     QS=qs_curr,                         &  !*
+                     QG=qg_curr,                         &  !*
+                     NI=qni_curr,                        &  !*
+                     NC=qnc_curr,                        &  ! BAW implement Morrison predicted CDNC scheme
+                     NS=qns_curr,                        &  !* ! VVT
+                     NR=qnr_curr,                        &  !* ! VVT
+                     NG=qng_curr,                        &  !* ! VVT
+                     TKE=tke_pbl,                        &  ! BAW implement Morrison predicted CDNC scheme
+                     RHO=rho,                            &  !*
+                     PII=pi_phy,                         &  !*
+                     P=p,                                &  !*
+                     DT_IN=dt,                           &  !*
+                     DZ=dz8w,                            &  !* !hm
+                     HT=ht,                              &  !*
+                     W=w                                 &  !*
+                    ,RAINNC=RAINNC                       &  !*
+                    ,RAINNCV=RAINNCV                     &  !*
+                    ,SR=SR                               &  !* !hm
+                    ,REFL_10CM=refl_10cm                 &  ! added for radar reflectivity
+                    ,grid_clock=grid_clock               &  ! BAW implement Morrison predicted CDNC scheme
+                    ,grid_alarms=grid_alarms             &  ! BAW implement Morrison predicted CDNC scheme
+                    ,NCTEND=NCTEND, NITEND=NITEND        &  ! BAW implement Morrison predicted CDNC scheme
+                    ,KZH=KZH                             &  ! BAW implement Morrison predicted CDNC scheme
+                 ,IDS=ids,IDE=ide, JDS=jds,JDE=jde, KDS=kds,KDE=kde &
+                 ,IMS=ims,IME=ime, JMS=jms,JME=jme, KMS=kms,KME=kme &
+                 ,ITS=its,ITE=ite, JTS=jts,JTE=jte, KTS=kts,KTE=kte &
+                                                                    )
+        ELSE
+           Call wrf_error_fatal( 'arguments not present for calling morrison two moment with predicted CDNC' )
         ENDIF
 
 

@@ -43,7 +43,8 @@ CONTAINS
                      WSM6SCHEME, ETAMPNEW, THOMPSON, THOMPSONAERO,                     &
                      MORR_TWO_MOMENT, GSFCGCESCHEME, WDM5SCHEME, WDM6SCHEME,           &
                      NSSL_2MOM, NSSL_2MOMCCN, NSSL_1MOM, NSSL_1MOMLFO,                 &
-                     MILBRANDT2MOM , CAMMGMPSCHEME, FAST_KHAIN_LYNN, FULL_KHAIN_LYNN    !,MILBRANDT3MOM, NSSL_3MOM, MORR_MILB_P3
+                     MILBRANDT2MOM , CAMMGMPSCHEME, FAST_KHAIN_LYNN, FULL_KHAIN_LYNN,  &  !,MILBRANDT3MOM, NSSL_3MOM, MORR_MILB_P3
+                     MORR_TWO_MOMENT_PREDICTCDNC                                       ! BAW implement Morrison predicted CDNC
 
       USE module_driver_constants, ONLY: max_plevs, max_zlevs
 
@@ -381,7 +382,7 @@ CONTAINS
                 ,NUM_TILES=grid%num_tiles                            &
                                                                     )
 
-        CASE (MORR_TWO_MOMENT)
+        CASE (MORR_TWO_MOMENT, MORR_TWO_MOMENT_PREDICTCDNC) ! BAW implement Morrison predicted CDNC scheme
 
       CALL diagnostic_output_calc(                                   &
                  DPSDT=grid%dpsdt   ,DMUDT=grid%dmudt                &
