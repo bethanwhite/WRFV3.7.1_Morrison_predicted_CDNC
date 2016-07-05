@@ -3694,7 +3694,8 @@ BENCH_START(micro_driver_tim)
       &        ,height=grid%height                                         &
       &        ,tempc=grid%tempc                                         &
       &        ,ccn_conc=grid%ccn_conc                                   & ! RAS
-
+      &        ,grid_clock=grid%domain_clock                             & ! BAW add for Morrison predicted CDNC implementation
+      &        ,grid_alarms=grid%alarms                                   & ! BAW add for Morrison predicted CDNC implementation
                                                                           )
 BENCH_END(micro_driver_tim)
 

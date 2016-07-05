@@ -90,6 +90,8 @@ SUBROUTINE microphysics_driver(                                          &
                       ,TH_OLD                                            &
                       ,QV_OLD                                            &
                       ,xlat,xlong,ivgtyp                                 &
+                      ,grid_clock, grid_alarms                           &  ! BAW add for Morrison predicted CDNC implementation
+                      ,kzh, nctend, nitend                               &  ! BAW add for Morrison predicted CDNC implementation
 
                                                    )
 ! Framework
@@ -538,6 +540,10 @@ REAL, DIMENSION( ims:ime, kms:kme, jms:jme ),                        &
                  re_cloud, re_ice, re_snow
    INTEGER, INTENT(IN):: has_reqc, has_reqi, has_reqs
 !  REAL , DIMENSION( ims:ime , jms:jme ), OPTIONAL, INTENT(INOUT) :: lwp
+
+ TYPE (WRFU_Clock):: grid_clock                  ! GT, BAW add for Morrison predicted CDNC implementation
+      TYPE (WRFU_Alarm), POINTER:: grid_alarms(:)     ! GT, BAW add for Morrison predicted CDNC implementation
+
 
 ! LOCAL  VAR
 
