@@ -630,7 +630,8 @@ END SUBROUTINE GRAUPEL_INIT
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 SUBROUTINE MP_GRAUPEL(ITIMESTEP,                       &
-                TH, QV, QC, QR, QI, QS, QG, NI, NC, NS, NR, NG, TKE, NCTEND, &
+                TH, QV, QC, QR, QI, QS, QG, NI, NC, NS, NR, NG, TKE, &
+                NCTEND, &                           ! BAW DEBUG
                 NITEND,KZH,  &
                 RHO, PII, P, DT_IN, DZ, HT, W,          &
                 RAINNC, RAINNCV, SR                     &
