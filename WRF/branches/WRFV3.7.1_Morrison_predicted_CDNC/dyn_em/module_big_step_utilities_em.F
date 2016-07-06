@@ -14,7 +14,7 @@ MODULE module_big_step_utilities_em
 
    USE module_model_constants
    USE module_state_description, only: p_qg, p_qs, p_qi, gdscheme, tiedtkescheme, ntiedtkescheme, kfetascheme, mskfscheme, &
-       g3scheme, gfscheme,p_qv, param_first_scalar, p_qr, p_qc, DFI_FWD
+       g3scheme, gfscheme,p_qv, param_first_scalar, p_qr, p_qc, DFI_FWD, p_qnc, p_qni
    USE module_configure, ONLY : grid_config_rec_type
    USE module_wrf_error
 
@@ -4660,6 +4660,7 @@ END SUBROUTINE pole_point_bc
                          RTHRATEN,                                    &
                          RTHBLTEN, RUBLTEN, RVBLTEN,                  &
                          RQVBLTEN, RQCBLTEN, RQIBLTEN,                &
+                         RNCBLTEN, RNIBLTEN,                          & ! BAW
                          RUCUTEN,  RVCUTEN,  RTHCUTEN,                &
                          RQVCUTEN, RQCCUTEN, RQRCUTEN,                &
                          RQICUTEN, RQSCUTEN,                          &
@@ -4756,7 +4757,9 @@ END SUBROUTINE pole_point_bc
                                                            RTHBLTEN, &
                                                            RQVBLTEN, &
                                                            RQCBLTEN, &
-                                                           RQIBLTEN
+                                                           RQIBLTEN, &
+                                                           RNCBLTEN, & ! BAW add 
+                                                           RNIBLTEN    ! BAW add
 
    REAL,  DIMENSION( ims:ime, kms:kme, jms:jme )                   , &
           INTENT(INOUT)   ::                                RTHFTEN, &
@@ -5131,6 +5134,29 @@ END SUBROUTINE pole_point_bc
          ENDDO
          ENDDO
       ENDIF
+
+! BAW from here
+      IF (P_QNC .ge. PARAM_FIRST_SCALAR) THEN
+         DO J=j_start,j_end
+         DO K=k_start,k_end
+         DO I=i_start,i_end
+           RNCBLTEN(I,K,J)=RNCBLTEN(I,K,J)/mu(I,J)
+         ENDDO
+         ENDDO
+         ENDDO
+      ENDIF
+
+      IF (P_QNI .ge. PARAM_FIRST_SCALAR) THEN
+         DO J=j_start,j_end
+         DO K=k_start,k_end
+         DO I=i_start,i_end
+            RNIBLTEN(I,K,J)=RNIBLTEN(I,K,J)/mu(I,J)
+         ENDDO
+         ENDDO
+         ENDDO
+      ENDIF
+! BAW to here
+
 
     ENDIF
 

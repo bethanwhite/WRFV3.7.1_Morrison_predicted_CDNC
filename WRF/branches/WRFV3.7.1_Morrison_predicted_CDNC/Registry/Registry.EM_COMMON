@@ -1261,7 +1261,10 @@ state    real  RQICUTEN        ikj      misc        1         -      r        "R
 state    real  RQCNCUTEN       ikj      misc        1         -      r       "RQCNCUTEN"             "COUPLED Q_CN TENDENCY DUE TO CUMULUS SCHEME"       "Pa kg kg-1 s-1"
 state    real  RQINCUTEN       ikj      misc        1         -      r       "RQINCUTEN"             "COUPLED Q_IN TENDENCY DUE TO CUMULUS SCHEME"       "Pa kg kg-1 s-1"
 state    real  W0AVG           ikj      misc        1         -      r        "W0AVG"                 "AVERAGE VERTICAL VELOCITY FOR KF CUMULUS SCHEME"         "m s-1"
-
+# BAW add for Morrison predicted CDNC
+state    real  EFFCS           ikj      misc        1         -      rdu     "EFFCS"                 "CLOUD DROPLET EFFECTIVE RADIUS"         "micron"
+state    real  EFFIS           ikj      misc        1         -      rdu     "EFFIS"                 "CLOUD ICE EFFECTIVE RADIUS"         "micron"
+# and BAW add
 state    real  RAINC            ij      misc        1         -      rhdu     "RAINC"                 "ACCUMULATED TOTAL CUMULUS PRECIPITATION"                 "mm"      
 state    real  RAINSH           ij      misc        1         -      rhdu     "RAINSH"                "ACCUMULATED SHALLOW CUMULUS PRECIPITATION"               "mm"
 state    real  RAINNC           ij      misc        1         -      rhdu     "RAINNC"                "ACCUMULATED TOTAL GRID SCALE PRECIPITATION"              "mm"      
@@ -1475,6 +1478,11 @@ state    real  RQVBLTEN        ikj      misc        1         -      r        "R
 state    real  RQCBLTEN        ikj      misc        1         -      r        "RQCBLTEN"              "COUPLED Q_C TENDENCY DUE TO PBL PARAMETERIZATION"     "Pa kg kg-1 s-1"
 state    real  RQIBLTEN        ikj      misc        1         -      r        "RQIBLTEN"              "COUPLED Q_I TENDENCY DUE TO PBL PARAMETERIZATION"     "Pa kg kg-1 s-1"      
 state    real  RQNIBLTEN       ikj      misc        1         -      r        "RQNIBLTEN"             "COUPLED Q_NI TENDENCY DUE TO PBL PARAMETERIZATION"    "Pa #  kg-1 s-1"
+# BAW add for Morrison predicted CDNC
+state    real  RNCBLTEN        ikj      misc        1         -      r        "RNCBLTEN"              "UNCOUPLED N_C TENDENCY DUE TO PBL PARAMETERIZATION"     "kg-1 s-1"
+state    real  RNIBLTEN        ikj      misc        1         -      r        "RNIBLTEN"              "UNCOUPLED N_I TENDENCY DUE TO PBL PARAMETERIZATION"     "kg-1 s-1"
+state    real  DIFFK           ikj      misc        1         -      r        "DIFFK"                 "EDDY HEAT DIFFUSION COEFFICIENT"                     "m^2 s-1"
+# end BAW add
 
 # For Noah UA changes
 state    real   flx4            ij         -        1         -      -        "FLX4"         "sensible heat from canopy"              "W m{-2}"

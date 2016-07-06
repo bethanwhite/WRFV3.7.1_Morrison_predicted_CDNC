@@ -34,6 +34,7 @@ CONTAINS
                          RQSSHTEN, RQISHTEN, RQGSHTEN,           &
                          RUBLTEN,RVBLTEN,RTHBLTEN,               &
                          RQVBLTEN,RQCBLTEN,RQIBLTEN,             &
+                         RNCBLTEN,RNIBLTEN,                      & ! BAW add
                          RTHRATEN,RTHRATENLW,RTHRATENSW,         &
 #if ( EM_CORE == 1 )
                          !BSINGH - For WRFCuP scheme(11/12/2013)
@@ -385,7 +386,9 @@ CONTAINS
    REAL,     DIMENSION(1:num_soil_layers),      INTENT(INOUT) :: ZS,DZS
 
   REAL,     DIMENSION( ims:ime , kms:kme , jms:jme ) , INTENT(INOUT) ::    & !BSINGH(PNNL)- should be declared inout
-             RUBLTEN,RVBLTEN,RTHBLTEN,RQVBLTEN,RQCBLTEN,RQIBLTEN,EXCH_H,TKE_PBL
+             RUBLTEN,RVBLTEN,RTHBLTEN,RQVBLTEN,RQCBLTEN,RQIBLTEN,EXCH_H,TKE_PBL, &
+             RNCBLTEN,RNIBLTEN                                                    ! BAW add
+
   REAL,     DIMENSION( ims:ime , kms:kme , jms:jme ) , INTENT(INOUT), OPTIONAL :: QKE
 
   REAL,     DIMENSION( ims:ime , kms:kme , jms:jme ) , INTENT(OUT), OPTIONAL :: &
@@ -1062,6 +1065,7 @@ integer myproc
    CALL wrf_debug ( 200 , 'module_start: phy_init: Before call to bl_init' )
    CALL bl_init(STEPBL,BLDT,DT,RUBLTEN,RVBLTEN,RTHBLTEN,        &
                 RQVBLTEN,RQCBLTEN,RQIBLTEN,TSK,TMN,             &
+                RNCBLTEN,RNIBLTEN,                              & ! BAW add
                 config_flags,restart,UST,LOWLYR,TSLB,ZS,DZS,    &
                 num_soil_layers,TKE_PBL,mfshconv,               &
                 massflux_EDKF, entr_EDKF, detr_EDKF, & 
@@ -1966,6 +1970,7 @@ integer myproc
 
    SUBROUTINE bl_init(STEPBL,BLDT,DT,RUBLTEN,RVBLTEN,RTHBLTEN,  &
                 RQVBLTEN,RQCBLTEN,RQIBLTEN,TSK,TMN,             &
+                RNCBLTEN,RNIBLTEN,                              & ! BAW add 
                 config_flags,restart,UST,LOWLYR,TSLB,ZS,DZS,    &
                 num_soil_layers,TKE_PBL,mfshconv,               &
                 massflux_EDKF, entr_EDKF, detr_EDKF, & 
@@ -2212,7 +2217,9 @@ integer myproc
                                                           RQVBLTEN, &
                                                           RQCBLTEN, &
                                                           RQIBLTEN, &
-                                                          TKE_PBL
+                                                          TKE_PBL,  &
+                                                 RNCBLTEN,RNIBLTEN  ! BAW add
+
    REAL,     DIMENSION( ims:ime , kms:kme , jms:jme ) , INTENT(INOUT), OPTIONAL :: QKE
 
    REAL,     DIMENSION( ims:ime , kms:kme , jms:jme ) , INTENT(OUT), OPTIONAL :: &
@@ -2910,7 +2917,8 @@ CALL lsm_mosaic_init(IVGTYP,config_flags%ISWATER,config_flags%ISURBAN,config_fla
            IF ((SF_URBAN_PHYSICS.eq.2).OR.(SF_URBAN_PHYSICS.EQ.3)) CALL wrf_error_fatal &
             ( 'module_physics_init: use myj (option 2) or boulac (option 8) with BEP/BEM urban scheme' )
            CALL ysuinit(RUBLTEN,RVBLTEN,RTHBLTEN,RQVBLTEN,    &
-                        RQCBLTEN,RQIBLTEN,P_QI,               &
+                        RQCBLTEN,RQIBLTEN,                    &
+                        RNCBLTEN,RNIBLTEN,P_QI,               & ! BAW add
                         PARAM_FIRST_SCALAR,                   &
                         restart,                              &
                         allowed_to_read ,                     &

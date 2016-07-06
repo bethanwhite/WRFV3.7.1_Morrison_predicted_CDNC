@@ -198,6 +198,7 @@ BENCH_END(init_zero_tend_tim)
                         grid%rthraten,                                   &
                         grid%rthblten, grid%rublten, grid%rvblten,       &
                         grid%rqvblten, grid%rqcblten, grid%rqiblten,     &
+                        grid%rncblten, grid%rniblten,                    & ! BAW add
                         grid%rucuten,  grid%rvcuten,  grid%rthcuten,     &
                         grid%rqvcuten, grid%rqccuten, grid%rqrcuten,     &
                         grid%rqicuten, grid%rqscuten,                    &
@@ -337,6 +338,7 @@ BENCH_START(rad_driver_tim)
      &        , F_ICE_PHY=grid%f_ice_phy,F_RAIN_PHY=grid%f_rain_phy       &
      &        , QV=moist(ims,kms,jms,P_QV), F_QV=F_QV                     &
      &        , QC=moist(ims,kms,jms,P_QC), F_QC=F_QC                     &
+     &        , EFFCS=grid%effcs, EFFIS=grid%effis                        & ! BAW add
      &        , QR=moist(ims,kms,jms,P_QR), F_QR=F_QR                     &
      &        , QI=moist(ims,kms,jms,P_QI), F_QI=F_QI                     &
      &        , QS=moist(ims,kms,jms,P_QS), F_QS=F_QS                     &
@@ -845,6 +847,8 @@ BENCH_START(pbl_driver_tim)
      &        ,QSFC=grid%qsfc          ,QZ0=grid%qz0  ,MIXHT=mixht                  &
      &        ,RA_LW_PHYSICS=config_flags%ra_lw_physics                   &
      &        ,RHO=grid%rho            ,RQCBLTEN=grid%rqcblten  ,RQIBLTEN=grid%rqiblten  &
+     ! BAW add number concentration for call to ysu schemes
+     &        ,RNCBLTEN=grid%rncblten,RNIBLTEN=grid%rniblten,DIFFK=grid%diffk            &
      &        ,RQVBLTEN=grid%rqvblten  ,RTHBLTEN=grid%rthblten  ,RUBLTEN=grid%rublten    &
      &        ,RVBLTEN=grid%rvblten    ,SNOW=grid%snow          ,STEPBL=grid%stepbl      &
      &        ,THZ0=grid%thz0          ,TH_PHY=th_phy                               &

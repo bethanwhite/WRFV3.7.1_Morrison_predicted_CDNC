@@ -72,6 +72,7 @@ CONTAINS
               , QS, F_QS                     &
               , QG, F_QG                     &
               , QNDROP, F_QNDROP    &
+              , EFFCS, EFFIS                 & ! BAW
               ,ACSWUPT   ,ACSWUPTC            &
               ,ACSWDNT   ,ACSWDNTC            &
               ,ACSWUPB   ,ACSWUPBC            &
@@ -623,7 +624,8 @@ CONTAINS
          OPTIONAL,                                                &
          INTENT(INOUT ) ::                                        &
                                                                pb &
-                                        ,qv,qc,qr,qi,qs,qg,qndrop
+                                        ,qv,qc,qr,qi,qs,qg,qndrop &
+                                        ,effcs, effis             ! BAW
 
    LOGICAL, OPTIONAL ::     f_qv,f_qc,f_qr,f_qi,f_qs,f_qg,f_qndrop
 !
@@ -1661,6 +1663,7 @@ CONTAINS
                     ,F_QV=f_qv,F_QC=f_qc,F_QR=f_qr                     &
                     ,F_QI=f_qi,F_QS=f_qs,F_QG=f_qg                     &
                     ,F_QNDROP=f_qndrop                                 &
+                    ,EFFCS=effcs, EFFIS=effis                         & ! BAW add for Morrison predicted CDNC implementation
                     ,COSZEN=coszen                                     &
                                                                        )
 

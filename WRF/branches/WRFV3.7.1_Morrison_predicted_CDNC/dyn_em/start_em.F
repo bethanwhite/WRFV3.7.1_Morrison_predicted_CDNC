@@ -899,6 +899,7 @@ endif
                       grid%rqsshten, grid%rqishten, grid%rqgshten,           &
                       grid%rublten,grid%rvblten,grid%rthblten,               &
                       grid%rqvblten,grid%rqcblten,grid%rqiblten,             &
+                      grid%rncblten,grid%rniblten,                           &  ! BAW add
                       grid%rthraten,grid%rthratenlw,grid%rthratensw,         &
                       !BSINGH - For WRFCuP scheme(11/12/2013)
                       grid%cupflag,grid%cldfra_cup,grid%cldfratend_cup,      & !wig, 18-Sep-2006

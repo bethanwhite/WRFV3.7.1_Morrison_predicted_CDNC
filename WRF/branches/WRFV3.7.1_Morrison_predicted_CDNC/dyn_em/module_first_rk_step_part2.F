@@ -256,6 +256,7 @@ BENCH_START(cal_phy_tend)
                      grid%rthraten,                                    &
                      grid%rublten,grid%rvblten,grid%rthblten,          &
                      grid%rqvblten,grid%rqcblten,grid%rqiblten,        &
+                     grid%rncblten,grid%rniblten,                      & ! BAW
                      grid%rucuten,grid%rvcuten,grid%rthcuten,          &
                      grid%rqvcuten,grid%rqccuten,grid%rqrcuten,        &
                      grid%rqicuten,grid%rqscuten,                      &
@@ -611,6 +612,7 @@ BENCH_START(update_phy_ten_tim)
                            grid%rublten,grid%rucuten,grid%rushten,          &
                            grid%rvblten,grid%rvcuten,grid%rvshten,          &
                            grid%rqvblten,grid%rqcblten,grid%rqiblten,       &
+                           grid%rncblten,grid%rniblten,                     & ! BAW
                            grid%rqniblten,                                  & !CAMUWPBL scheme
                            grid%rqvcuten,grid%rqccuten,grid%rqrcuten,       &
                            grid%rqicuten,grid%rqscuten,                     &
