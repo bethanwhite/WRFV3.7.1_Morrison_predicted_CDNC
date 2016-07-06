@@ -15,6 +15,7 @@ contains
    subroutine ysu(u3d,v3d,th3d,t3d,qv3d,qc3d,qi3d,p3d,p3di,pi3d,               &
                   rublten,rvblten,rthblten,                                    &
                   rqvblten,rqcblten,rqiblten,flag_qi,                          &
+                  rncblten,rniblten,nc3d,ni3d,diffk,                           & ! BAW add N variables
                   cp,g,rovcp,rd,rovg,ep1,ep2,karman,xlv,rv,                    &
                   dz8w,psfc,                                                   &
                   znu,znw,mut,p_top,                                           &
@@ -43,6 +44,13 @@ contains
 !-- qc3d        3d cloud mixing ratio (kg/kg)
 !-- qi3d        3d ice mixing ratio (kg/kg)
 !               (note: if P_QI<PARAM_FIRST_SCALAR this should be zero filled)
+!--- BAW add for Morrison predicted CDNC implementation ------------------------
+!-- nc3d		3d cloud number concentration
+!-- ni3d		3d ice number concentration
+!-- diffk		eddy diffusivity coefficient
+!-- rncblten    nc tendency due to pbl parameterization (/s)
+!-- rniblten    ni tendency due to pbl parameterization (/s)
+!-- end BAW additions ---------------------------------------------------------
 !-- p3d         3d pressure (pa)
 !-- p3di        3d pressure (pa) at interface level
 !-- pi3d        3d exner function (dimensionless)
@@ -107,7 +115,12 @@ contains
 !-- kte         end index for k in tile
 !-------------------------------------------------------------------------------
 !
-   integer,parameter ::  ndiff = 3
+
+! BAW modify, 5 instead of 3 diffused cloud scalars
+!   integer,parameter ::  ndiff = 3
+
+   integer,parameter ::  ndiff = 5
+
    real,parameter    ::  rcl = 1.0
 !
    integer,  intent(in   )   ::      ids,ide, jds,jde, kds,kde,                &
@@ -124,6 +137,8 @@ contains
              intent(in   )   ::                                          qv3d, &
                                                                          qc3d, &
                                                                          qi3d, &
+                                                                         nc3d, & ! BAW add
+                                                                         ni3d, & ! BAW add
                                                                           p3d, &
                                                                          pi3d, &
                                                                          th3d, &
@@ -138,6 +153,9 @@ contains
                                                                       rvblten, &
                                                                      rthblten, &
                                                                      rqvblten, &
+                                                                     rncblten, & ! BAW add
+                                                                     rniblten, & ! BAW add
+                                                                     diffk,    & ! BAW add
                                                                      rqcblten
 !
    real,     dimension( ims:ime, kms:kme, jms:jme )                          , &
@@ -240,12 +258,17 @@ contains
           qv2d(i,k) = qv3d(i,k,j)
           qv2d(i,k+kte) = qc3d(i,k,j)
           if(present(rqiblten)) qv2d(i,k+kte+kte) = qi3d(i,k,j)
+          ! BAW add for Morrison predicted CDNC implementation
+          qv2d(i,k+kte+kte+kte) = nc3d(i,k,j)         
+          qv2d(i,k+kte+kte+kte+kte) = ni3d(i,k,j)
+          ! end BAW edit
         enddo
       enddo
 !
       call ysu2d(J=j,ux=u3d(ims,kms,j),vx=v3d(ims,kms,j)                       &
               ,tx=t3d(ims,kms,j)                                               &
               ,qx=qv2d(its,kts)                                                &
+              ,kzhtemp=diffk(ims,kms,j)                                        & ! BAW add              
               ,p2d=pdh(its,kts),p2di=pdhi(its,kts)                             &
               ,pi2d=pi3d(ims,kms,j)                                            &
               ,utnp=rublten(ims,kms,j),vtnp=rvblten(ims,kms,j)                 &
@@ -280,6 +303,10 @@ contains
          rqvblten(i,k,j) = rqvbl2dt(i,k)
          rqcblten(i,k,j) = rqvbl2dt(i,k+kte)
          if(present(rqiblten)) rqiblten(i,k,j) = rqvbl2dt(i,k+kte+kte)
+         ! BAW edit to pass out rncblten, rniblten
+         rncblten(i,k,j) = rqvbl2dt(i,k+kte+kte+kte)
+         rniblten(i,k,j) = rqvbl2dt(i,k+kte+kte+kte+kte)    
+         ! BAW end 
        enddo
      enddo
 !
@@ -289,8 +316,8 @@ contains
 !
 !-------------------------------------------------------------------------------
 !
-   subroutine ysu2d(j,ux,vx,tx,qx,p2d,p2di,pi2d,                               &
-                  utnp,vtnp,ttnp,qtnp,ndiff,                                   &
+   subroutine ysu2d(j,ux,vx,tx,qx,kzhtemp,p2d,p2di,pi2d,                       & ! BAW add kzhtemp
+                  utnp,vtnp,ttnp,qtnp,ndiff,                                   & 
                   cp,g,rovcp,rd,rovg,ep1,ep2,karman,xlv,rv,                    &
                   dz8w2d,psfcpa,                                               &
                   znt,ust,hpbl,psim,psih,                                      &
@@ -396,7 +423,8 @@ contains
                                                                       p2diorg
 !
    real,     dimension( ims:ime, kms:kme )                                   , &
-             intent(in   )   ::                                            tx
+             intent(in   )   ::                                            tx 
+
    real,     dimension( its:ite, kts:kte*ndiff )                             , &
              intent(in   )   ::                                            qx
 !
@@ -404,6 +432,12 @@ contains
              intent(inout)   ::                                          utnp, &
                                                                          vtnp, &
                                                                          ttnp
+
+! BAW add heat diff coef below 
+   real,     dimension( ims:ime, kms:kme )                    , &
+             intent(inout)   ::                           kzhtemp
+
+
    real,     dimension( its:ite, kts:kte*ndiff )                             , &
              intent(inout)   ::                                          qtnp
 !
@@ -615,6 +649,7 @@ contains
    ttnp(its:ite,:) = 0.
    qtnp(its:ite,:) = 0.
 !
+
    do i = its,ite
      wspd1(i) = sqrt( (ux(i,1)-uox(i))*(ux(i,1)-uox(i)) + (vx(i,1)-vox(i))*(vx(i,1)-vox(i)) )+1.e-9
    enddo
@@ -1185,6 +1220,11 @@ contains
      f3(i,1,1) = qx(i,1)+qfx(i)*g/del(i,1)*dt2
    enddo
 !
+
+
+! BAW - no need to modify the code below for Morrison predicted CDNC,
+! we have already placed nc, ni into qx before passing into this subroutine
+!
    if(ndiff.ge.2) then
      do ic = 2,ndiff
        is = (ic-1) * kte
@@ -1232,6 +1272,10 @@ contains
      enddo
    enddo
 !
+
+! BAW - no need to modify the code below for Morrison predicted CDNC,
+! we have already placed nc, ni into qx before passing into this subroutine
+!
    if(ndiff.ge.2) then
      do ic = 2,ndiff
        is = (ic-1) * kte
@@ -1242,6 +1286,7 @@ contains
        enddo
      enddo
    endif
+
 !
 ! copies here to avoid duplicate input args for tridin
 !
@@ -1273,6 +1318,10 @@ contains
      enddo
    enddo
 !
+
+! BAW - no need to modify the code below for Morrison predicted CDNC,
+! we have already placed nc, ni into f3, qx before passing into this subroutine
+!
    if(ndiff.ge.2) then
      do ic = 2,ndiff
        is = (ic-1) * kte
@@ -1284,6 +1333,7 @@ contains
        enddo
      enddo
    endif
+
 !
 !     compute tridiagonal matrix elements for momentum
 !
@@ -1313,6 +1363,10 @@ contains
 !
    do k = kts,kte-1
      do i = its,ite
+
+! BAW add, store vertical heat diffusion in temp variable
+       kzhtemp(i,k)=xkzh(i,k)
+
        dtodsd = dt2/del(i,k)
        dtodsu = dt2/del(i,k+1)
        dsig   = p2d(i,k)-p2d(i,k+1)
@@ -1550,7 +1604,9 @@ contains
 !
 !-------------------------------------------------------------------------------
    subroutine ysuinit(rublten,rvblten,rthblten,rqvblten,                       &
-                      rqcblten,rqiblten,p_qi,p_first_scalar,                   &
+                      rqcblten,rqiblten,                                       &
+                      rncblten,rniblten,                                       &  ! BAW add
+                      p_qi,p_first_scalar,                                     &
                       restart, allowed_to_read,                                &
                       ids, ide, jds, jde, kds, kde,                            &
                       ims, ime, jms, jme, kms, kme,                            &
@@ -1570,7 +1626,11 @@ contains
                                                                      rthblten, &
                                                                      rqvblten, &
                                                                      rqcblten, &
-                                                                     rqiblten
+                                                                     rqiblten, &
+                                                             rncblten,rniblten ! BAW add
+
+
+
    integer :: i, j, k, itf, jtf, ktf
 !
    jtf = min0(jte,jde-1)
@@ -1586,6 +1646,9 @@ contains
             rthblten(i,k,j) = 0.
             rqvblten(i,k,j) = 0.
             rqcblten(i,k,j) = 0.
+            ! BAW add
+            rncblten(i,k,j) = 0.
+            rniblten(i,k,j) = 0.
          enddo
        enddo
      enddo

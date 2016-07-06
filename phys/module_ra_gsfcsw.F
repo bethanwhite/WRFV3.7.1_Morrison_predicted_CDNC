@@ -24,6 +24,7 @@ CONTAINS
                    ,waer300,waer400,waer600,waer999               & ! jcb
                    ,aer_ra_feedback                               &
                    ,f_qv,f_qc,f_qr,f_qi,f_qs,f_qg,f_qndrop        &
+                   ,EFFCS,EFFIS                                  & ! BAW
                    ,coszen                                        & ! PAJ
                    ,ids,ide, jds,jde, kds,kde                     & 
                    ,ims,ime, jms,jme, kms,kme                     &
@@ -52,7 +53,8 @@ CONTAINS
                                                              T3D, &
                                                             dz8w, &
                                                          rho_phy, &
-                                                        CLDFRA3D
+                                                        CLDFRA3D, &
+                                                     EFFCS, EFFIS ! BAW add for coupling to Morrison mphys
 
 
    REAL, DIMENSION( ims:ime, kms:kme, jms:jme ),                  &
@@ -586,6 +588,10 @@ CONTAINS
             end if
          end if
          reff(i,k,1) = 80.
+      ! BAW overwrite effecttive radii with predicted quantities from mphys
+         reff(i,k,2) = EFFCS(i,k,j)
+         reff(i,k,1) = EFFIS(i,k,j)
+      ! BAW end
       end do
       end do
 !

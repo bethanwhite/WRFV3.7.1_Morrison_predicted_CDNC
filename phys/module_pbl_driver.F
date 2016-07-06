@@ -70,6 +70,7 @@ CONTAINS
                  ,qi_curr, qs_curr, qg_curr                        &
                  ,rqvblten,rqcblten,rqiblten                       &
                  ,rqrblten,rqsblten,rqgblten                       &
+                 ,rncblten, rniblten, diffk                        & ! amy add 
              !  Optional moisture tracer flags
                  ,f_qv,f_qc,f_qr                                   &
                  ,f_qi,f_qs,f_qg                                   &
@@ -608,7 +609,8 @@ CONTAINS
                      ,qi_curr, qs_curr, qg_curr                  &
                      ,qnc_curr,qni_curr                          & !used in CAMUWPBL
                      ,rqvblten,rqcblten,rqrblten                 &
-                     ,rqiblten,rqsblten,rqgblten,rqniblten         !rqniblten  used in CAMUWPBL
+                     ,rqiblten,rqsblten,rqgblten,rqniblten       &  !rqniblten  used in CAMUWPBL
+                     ,rncblten,rniblten,diffk                      ! BAW add droplet concentration 
 
 
    REAL,       DIMENSION( ims:ime, jms:jme )                    , &
@@ -910,6 +912,9 @@ CONTAINS
             RVBLTEN(I,K,J)=0.
             IF ( PRESENT( RQCBLTEN )) RQCBLTEN(I,K,J)=0.
             IF ( PRESENT( RQVBLTEN )) RQVBLTEN(I,K,J)=0.
+! BAW add tendency for number concentration
+            IF ( PRESENT( RNCBLTEN )) RNCBLTEN(I,K,J)=0.
+            IF ( PRESENT( RNIBLTEN )) RNIBLTEN(I,K,J)=0.
          ENDDO
 
          IF (flag_QI .AND. PRESENT(RQIBLTEN) ) THEN
@@ -1085,6 +1090,8 @@ CONTAINS
            IF ( PRESENT( qv_curr )  .AND. PRESENT( qc_curr )  .AND. &
                 PRESENT( qi_curr )                            .AND. &
                 PRESENT( rqvblten ) .AND. PRESENT( rqcblten ) .AND. &
+                PRESENT( rniblten ) .AND. PRESENT( rncblten ) .AND. & ! BAW
+                PRESENT( qnc_curr ) .AND. PRESENT( qni_curr ) .AND. & ! BAW
                 PRESENT( rqiblten )                           .AND. &
                 PRESENT( hol      ) ) THEN
 !
@@ -1096,6 +1103,8 @@ CONTAINS
               ,RTHBLTEN=rthblten,RQVBLTEN=rqvblten                  &
               ,RQCBLTEN=rqcblten,RQIBLTEN=rqiblten                  &
               ,FLAG_QI=flag_qi                                      &
+              ,RNCBLTEN=rncblten,RNIBLTEN=rniblten                  & ! BAW add
+              ,NC3D=qnc_curr,NI3D=qni_curr,DIFFK=diffk              & ! BAW add
               ,CP=cp,G=g,ROVCP=rcp,RD=r_D,ROVG=rovg                 &
               ,DZ8W=dz8w,XLV=XLV,RV=r_v,PSFC=PSFC                   &
               ,ZNU=znu,ZNW=znw,MUT=mut,P_TOP=p_top                  &

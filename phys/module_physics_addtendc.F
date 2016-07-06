@@ -31,6 +31,7 @@ SUBROUTINE update_phy_ten(rph_tendf,rt_tendf,ru_tendf,rv_tendf,moist_tendf, &
                       RUBLTEN,RUCUTEN,RUSHTEN,                              &
                       RVBLTEN,RVCUTEN,RVSHTEN,                              &
                       RQVBLTEN,RQCBLTEN,RQIBLTEN,RQNIBLTEN,&!RQNCBLTEN,       & !JOE
+                      RNCBLTEN,RNIBLTEN,                                    & ! BAW add
                       RQVCUTEN,RQCCUTEN,RQRCUTEN,RQICUTEN,RQSCUTEN,         &
                       RQCNCUTEN,RQINCUTEN,                                  &
                       RQVSHTEN,RQCSHTEN,RQRSHTEN,RQISHTEN,RQSSHTEN,RQGSHTEN,&
@@ -84,6 +85,8 @@ SUBROUTINE update_phy_ten(rph_tendf,rt_tendf,ru_tendf,rv_tendf,moist_tendf, &
                                                        RQCBLTEN, &
                                                        RQIBLTEN, &
                                                       RQNIBLTEN, & !For CAMUWPBL
+                                                       RNCBLTEN, & ! BAW for predicted CDNC Morrison scheme 
+                                                       RNIBLTEN, & ! BAW for predicted CDNC Morrison scheme  
                                                        RQVCUTEN, &
                                                        RQCCUTEN, &
                                                        RQRCUTEN, &
@@ -127,6 +130,7 @@ SUBROUTINE update_phy_ten(rph_tendf,rt_tendf,ru_tendf,rv_tendf,moist_tendf, &
                       RTHBLTEN,RUBLTEN,RVBLTEN,                &
                       RQVBLTEN,RQCBLTEN,RQIBLTEN,              &
                       RQNIBLTEN,                               &! For CAMUWPBL
+                      RNCBLTEN,RNIBLTEN,                       & ! BAW 
                       ids, ide, jds, jde, kds, kde,            &
                       ims, ime, jms, jme, kms, kme,            &
                       its, ite, jts, jte, kts, kte             )
@@ -212,6 +216,7 @@ SUBROUTINE phy_bl_ten(config_flags,rk_step,n_moist,n_scalar,     &
                       scalar_tendf,adv_moist_cond,               &
                       RTHBLTEN,RUBLTEN,RVBLTEN,                  & 
                       RQVBLTEN,RQCBLTEN,RQIBLTEN,RQNIBLTEN,      &
+                      RNCBLTEN,RNIBLTEN,                          & ! BAW add
                       ids, ide, jds, jde, kds, kde,              &
                       ims, ime, jms, jme, kms, kme,              &
                       its, ite, jts, jte, kts, kte               )
@@ -240,7 +245,9 @@ SUBROUTINE phy_bl_ten(config_flags,rk_step,n_moist,n_scalar,     &
                                                        RQVBLTEN, &
                                                        RQCBLTEN, &
                                                        RQIBLTEN, &
-                                                      RQNIBLTEN
+                                                      RQNIBLTEN, &
+                                                       RNCBLTEN, & ! BAW
+                                                       RNIBLTEN    ! BAW
 
    REAL, DIMENSION(ims:ime, kms:kme, jms:jme), INTENT(INOUT)::   &
                                                        rt_tendf, &
@@ -291,6 +298,22 @@ SUBROUTINE phy_bl_ten(config_flags,rk_step,n_moist,n_scalar,     &
                 ids,ide, jds, jde, kds, kde,                     &
                 ims, ime, jms, jme, kms, kme,                    &
                 its, ite, jts, jte, kts, kte                     )
+
+! BAW add from here
+        if (P_QNC .ge. PARAM_FIRST_SCALAR)                                         &
+           CALL add_a2a(scalar_tendf(ims,kms,jms,P_QNC),RNCBLTEN,  &
+                config_flags,                                    &
+                ids,ide, jds, jde, kds, kde,                     &
+                ims, ime, jms, jme, kms, kme,                    &
+                its, ite, jts, jte, kts, kte                     )
+
+        if (P_QNI .ge. PARAM_FIRST_SCALAR)                                         &
+           CALL add_a2a(scalar_tendf(ims,kms,jms,P_QNI),RNIBLTEN,  &
+                config_flags,                                    &
+                ids,ide, jds, jde, kds, kde,                     &
+                ims, ime, jms, jme, kms, kme,                    &
+                its, ite, jts, jte, kts, kte                     )
+! BAW add to here
 
        IF(.not. adv_moist_cond)THEN
 

@@ -16,7 +16,7 @@ MODULE module_em
         theta_relaxation, vertical_diffusion_mp, zero_tend, zero_tend2d
 	
    USE module_state_description, only: param_first_scalar, p_qr, p_qv, p_qc, p_qg, p_qi, p_qs, tiedtkescheme,ntiedtkescheme, heldsuarez, &
-        positivedef, gdscheme, g3scheme, gfscheme, kfetascheme, mskfscheme, monotonic, wenopd_scalar, weno_scalar, weno_mom
+        positivedef, gdscheme, g3scheme, gfscheme, kfetascheme, mskfscheme, monotonic, wenopd_scalar, weno_scalar, weno_mom, p_qnc, p_qni
 	
    USE module_damping_em, only: held_suarez_damp
 
@@ -1763,6 +1763,7 @@ SUBROUTINE calculate_phy_tend (config_flags,mu,muu,muv,pi3d,           &
                      RTHRATEN,                                         &
                      RUBLTEN,RVBLTEN,RTHBLTEN,                         &
                      RQVBLTEN,RQCBLTEN,RQIBLTEN,                       &
+                     RNCBLTEN,RNIBLTEN,                                & ! BAW add
                      RUCUTEN,RVCUTEN,RTHCUTEN,                         &
                      RQVCUTEN,RQCCUTEN,RQRCUTEN,                       &
                      RQICUTEN,RQSCUTEN,                                &
@@ -1830,7 +1831,9 @@ SUBROUTINE calculate_phy_tend (config_flags,mu,muu,muv,pi3d,           &
                                                              RTHBLTEN, &
                                                              RQVBLTEN, &
                                                              RQCBLTEN, &
-                                                             RQIBLTEN
+                                                             RQIBLTEN, &
+                                                             RNCBLTEN, & !BAW
+                                                             RNIBLTEN    !BAW
 
 ! fdda
 
@@ -2049,6 +2052,29 @@ SUBROUTINE calculate_phy_tend (config_flags,mu,muu,muv,pi3d,           &
          ENDDO
          ENDDO
       ENDIF
+
+! BAW from here
+      IF (P_QNC .ge. PARAM_FIRST_SCALAR) THEN
+         DO J=jts,jtf
+         DO K=kts,ktf
+         DO I=its,itf
+           RNCBLTEN(I,K,J)=mu(I,J)*RNCBLTEN(I,K,J)
+         ENDDO
+         ENDDO
+         ENDDO
+      ENDIF
+
+      IF (P_QNI .ge. PARAM_FIRST_SCALAR) THEN
+         DO J=jts,jtf
+         DO K=kts,ktf
+         DO I=its,itf
+            RNIBLTEN(I,K,J)=mu(I,J)*RNIBLTEN(I,K,J)
+         ENDDO
+         ENDDO
+         ENDDO
+      ENDIF
+! BAW to here
+
 
     ENDIF
 

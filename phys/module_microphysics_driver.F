@@ -22,6 +22,7 @@ SUBROUTINE microphysics_driver(                                          &
                       ,ips,ipe, jps,jpe, kps,kpe                         &
                       ,i_start,i_end,j_start,j_end,kts,kte               &
                       ,num_tiles, naer                                   &
+                      ,diffk, effcs, effis, rncblten, rniblten           & ! BAW add for Morrison predicted CDNC coupling
 !======================
                       !Variables required for CAMMGMP Scheme
                       ,dlf,dlf2,t_phy,p_hyd,p8w_hyd,tke_pbl,z_at_w,qfx   &
@@ -91,7 +92,6 @@ SUBROUTINE microphysics_driver(                                          &
                       ,QV_OLD                                            &
                       ,xlat,xlong,ivgtyp                                 &
                       ,grid_clock, grid_alarms                           &  ! BAW add for Morrison predicted CDNC implementation
-                      ,kzh, nctend, nitend                               &  ! BAW add for Morrison predicted CDNC implementation
 
                                                    )
 ! Framework
@@ -474,8 +474,8 @@ REAL, DIMENSION( ims:ime, kms:kme, jms:jme ),                        &
                  ,kext_ft_qic,kext_ft_qip,kext_ft_qid &
                  ,kext_ft_qs,kext_ft_qg                           &
                  ,qnwfa_curr,qnifa_curr                           & ! Added by G. Thompson
-                 ,qvolg_curr,qvolh_curr
-
+                 ,qvolg_curr,qvolh_curr                           &
+                 ,diffk, effcs, effis, rncblten, rniblten         ! BAW add for coupling to Morrison predicted CDNC
 
 
    REAL, DIMENSION( ims:ime, kms:kme, jms:jme ),                  &
@@ -1034,8 +1034,9 @@ REAL, DIMENSION( ims:ime, kms:kme, jms:jme ),                        &
                     ,REFL_10CM=refl_10cm                 &  ! added for radar reflectivity
                     ,grid_clock=grid_clock               &  ! BAW implement Morrison predicted CDNC scheme
                     ,grid_alarms=grid_alarms             &  ! BAW implement Morrison predicted CDNC scheme
-                    ,NCTEND=NCTEND, NITEND=NITEND        &  ! BAW implement Morrison predicted CDNC scheme
-                    ,KZH=KZH                             &  ! BAW implement Morrison predicted CDNC scheme
+                    ,NCTEND=rncblten, NITEND=rniblten    &  ! BAW implement Morrison predicted CDNC scheme
+                    ,EFFCS=EFFCS,EFFIS=EFFIS             &  ! BAW implement Morrison predicted CDNC scheme
+                    ,KZH=diffk                           &  ! BAW implement Morrison predicted CDNC scheme
                  ,IDS=ids,IDE=ide, JDS=jds,JDE=jde, KDS=kds,KDE=kde &
                  ,IMS=ims,IME=ime, JMS=jms,JME=jme, KMS=kms,KME=kme &
                  ,ITS=its,ITE=ite, JTS=jts,JTE=jte, KTS=kts,KTE=kte &
