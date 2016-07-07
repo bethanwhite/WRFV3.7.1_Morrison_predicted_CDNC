@@ -53,8 +53,11 @@ CONTAINS
                                                              T3D, &
                                                             dz8w, &
                                                          rho_phy, &
-                                                        CLDFRA3D, &
-                                                     EFFCS, EFFIS ! BAW add for coupling to Morrison mphys
+                                                        CLDFRA3D 
+
+REAL, DIMENSION( ims:ime, kms:kme, jms:jme ),                     &
+         OPTIONAL,                                                &
+         INTENT(IN    ) ::                           EFFCS, EFFIS ! BAW add for coupling to Morrison mphys
 
 
    REAL, DIMENSION( ims:ime, kms:kme, jms:jme ),                  &
@@ -588,10 +591,12 @@ CONTAINS
             end if
          end if
          reff(i,k,1) = 80.
-      ! BAW overwrite effecttive radii with predicted quantities from mphys
-         reff(i,k,2) = EFFCS(i,k,j)
-         reff(i,k,1) = EFFIS(i,k,j)
-      ! BAW end
+         ! BAW overwrite effecttive radii with predicted quantities from mphys, if they are available
+         if( PRESENT( EFFCS(i,k,j) ) ) then
+            reff(i,k,2) = EFFCS(i,k,j)
+            reff(i,k,1) = EFFIS(i,k,j)
+         end if 
+        ! BAW end
       end do
       end do
 !
