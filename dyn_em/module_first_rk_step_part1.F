@@ -339,6 +339,7 @@ BENCH_START(rad_driver_tim)
      &        , QV=moist(ims,kms,jms,P_QV), F_QV=F_QV                     &
      &        , QC=moist(ims,kms,jms,P_QC), F_QC=F_QC                     &
      &        , EFFCS=grid%effcs, EFFIS=grid%effis                        & ! BAW add
+     &        , MP_PHYSICS=config_flags%mp_physics                        & ! BAW add for microphysics coupling
      &        , QR=moist(ims,kms,jms,P_QR), F_QR=F_QR                     &
      &        , QI=moist(ims,kms,jms,P_QI), F_QI=F_QI                     &
      &        , QS=moist(ims,kms,jms,P_QS), F_QS=F_QS                     &
