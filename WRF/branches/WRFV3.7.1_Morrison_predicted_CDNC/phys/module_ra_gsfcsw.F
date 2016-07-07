@@ -24,11 +24,26 @@ CONTAINS
                    ,waer300,waer400,waer600,waer999               & ! jcb
                    ,aer_ra_feedback                               &
                    ,f_qv,f_qc,f_qr,f_qi,f_qs,f_qg,f_qndrop        &
-                   ,EFFCS,EFFIS                                  & ! BAW
+                   ,EFFCS,EFFIS                                   & ! BAW
+                   ,mp_physics                                    & ! BAW
                    ,coszen                                        & ! PAJ
                    ,ids,ide, jds,jde, kds,kde                     & 
                    ,ims,ime, jms,jme, kms,kme                     &
                    ,its,ite, jts,jte, kts,kte                     ) 
+
+! ----BAW add USE module_state_description to get the microphysics schemes ---
+! we use this to find out whether we are coupled to the effective radius from the microphysics
+! !USES:
+   USE module_state_description, ONLY :                                  &
+                     KESSLERSCHEME, LINSCHEME, SBU_YLINSCHEME, WSM3SCHEME,WSM5SCHEME    &
+                    ,WSM6SCHEME, ETAMPNEW, ETAMP_HR, THOMPSON, THOMPSONAERO,FAST_KHAIN_LYNN, MORR_TWO_MOMENT     &
+                    ,GSFCGCESCHEME, WDM5SCHEME, WDM6SCHEME, NSSL_2MOM,NSSL_2MOMCCN, NSSL_2MOMG  &
+                    ,NSSL_1MOM,NSSL_1MOMLFO & ! ,NSSL_3MOM       &
+                    ,MILBRANDT2MOM , CAMMGMPSCHEME,FULL_KHAIN_LYNN  &!,MILBRANDT3MOM
+                    ,MORR_TWO_MOMENT_PREDICTCDNC ! BAW implement predicted CDNC Morrison scheme
+!
+! ---------- BAW end ------------------ 
+
 !------------------------------------------------------------------
    IMPLICIT NONE
 !------------------------------------------------------------------
@@ -53,12 +68,8 @@ CONTAINS
                                                              T3D, &
                                                             dz8w, &
                                                          rho_phy, &
-                                                        CLDFRA3D 
-
-REAL, DIMENSION( ims:ime, kms:kme, jms:jme ),                     &
-         OPTIONAL,                                                &
-         INTENT(IN    ) ::                           EFFCS, EFFIS ! BAW add for coupling to Morrison mphys
-
+                                                        CLDFRA3D, &
+                                                     EFFCS, EFFIS ! BAW add for coupling to Morrison mphys 
 
    REAL, DIMENSION( ims:ime, kms:kme, jms:jme ),                  &
          INTENT(INOUT)  ::                              RTHRATEN
@@ -107,6 +118,9 @@ REAL, DIMENSION( ims:ime, kms:kme, jms:jme ),                     &
    LOGICAL, OPTIONAL, INTENT(IN ) ::    &
                                    F_QV,F_QC,F_QR,F_QI,F_QS,F_QG, &
                                                         F_QNDROP
+
+   INTEGER,    INTENT(IN   )    :: mp_physics  ! BAW add for microphysics coupling
+
 !
 ! ... PAJ ...
 ! 
@@ -174,6 +188,8 @@ REAL, DIMENSION( ims:ime, kms:kme, jms:jme ),                     &
                                                        ie_summer, &
                                                           lattmp
 
+
+   LOGICAL :: F_EFFRAD   ! BAW add check to see if microphysics is coupled
 
 !
 ! PAJ: The following variables are not used in the subroutime. Line commented.
@@ -560,6 +576,22 @@ REAL, DIMENSION( ims:ime, kms:kme, jms:jme ),                     &
             ENDDO
          ENDIF
       ENDIF
+
+! BAW add logical block to see if we have effective radius coupling from the
+! microphysics. Note this must be manually updated when a new microphysics
+! scheme is coupled...
+!
+   F_EFFRAD = .FALSE.
+
+! Currently only the Morrison predicted CDNC scheme is coupled
+! NOTE: if coupling more schemes in the future, need to add 
+! to this list to set the F_EFFRAD flag
+  IF ( mp_physics .EQ. MORR_TWO_MOMENT_PREDICTCDNC) THEN
+     F_EFFRAD = .TRUE.
+  END IF
+!
+! BAW end
+
 !
 ! ... Vertical profiles for ozone
 !
@@ -592,7 +624,7 @@ REAL, DIMENSION( ims:ime, kms:kme, jms:jme ),                     &
          end if
          reff(i,k,1) = 80.
          ! BAW overwrite effecttive radii with predicted quantities from mphys, if they are available
-         if( PRESENT( EFFCS(i,k,j) ) ) then
+         if( ( F_EFFRAD ) ) then
             reff(i,k,2) = EFFCS(i,k,j)
             reff(i,k,1) = EFFIS(i,k,j)
          end if 

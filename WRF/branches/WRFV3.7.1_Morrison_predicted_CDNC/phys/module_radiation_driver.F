@@ -72,7 +72,8 @@ CONTAINS
               , QS, F_QS                     &
               , QG, F_QG                     &
               , QNDROP, F_QNDROP    &
-              , EFFCS, EFFIS                 & ! BAW
+              , EFFCS, EFFIS                 & ! BAW 
+              , mp_physics                   & ! BAW
               ,ACSWUPT   ,ACSWUPTC            &
               ,ACSWDNT   ,ACSWDNTC            &
               ,ACSWUPB   ,ACSWUPBC            &
@@ -651,6 +652,9 @@ CONTAINS
    ! vert nesting
    REAL, OPTIONAL , INTENT(IN   ) :: p_top
    REAL                           :: p_top_dummy
+
+! BAW add for microphysics coupling
+   INTEGER,    INTENT(IN   )    :: mp_physics
 
 ! LOCAL  VAR
 
@@ -1663,7 +1667,8 @@ CONTAINS
                     ,F_QV=f_qv,F_QC=f_qc,F_QR=f_qr                     &
                     ,F_QI=f_qi,F_QS=f_qs,F_QG=f_qg                     &
                     ,F_QNDROP=f_qndrop                                 &
-                    ,EFFCS=effcs, EFFIS=effis                         & ! BAW add for Morrison predicted CDNC implementation
+                    ,EFFCS=effcs, EFFIS=effis                          & ! BAW add for Morrison predicted CDNC implementation
+                    ,MP_PHYSICS=mp_physics                             & ! BAW add for Morrison predicted CDNC implementation
                     ,COSZEN=coszen                                     &
                                                                        )
 
