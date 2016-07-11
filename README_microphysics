@@ -1,0 +1,15 @@
+-------- Bethan White, July 2016 -------------------------------------------------
+------ bethan.white@physics.ox.ac.uk ---------------------------------------------
+
+This version of WRFv3.7.1 contains an implementation of Hugh Morrison's two-moment microphysics
+scheme with predicted cloud droplet number concentration.
+
+This implementation was ported from a WRVv3.1 implementation made by Amy Solomon (NOAA).
+
+This code is currently coupled to the YSU boundary layer scheme and the Goddard SW radiation scheme.
+The Goddard radiation scheme takes cloud and ice effective radii from the microphysics.
+
+The Morrison predicted CDNC scheme can be used by setting mp_physics = 101 in the namelist.input
+
+Please see the microphysics scheme in phys/module_mp_graupel.F for details of the 
+microphysics scheme and contact details for Hugh Morrison.
