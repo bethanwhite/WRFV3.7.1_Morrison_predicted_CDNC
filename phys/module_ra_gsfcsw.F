@@ -27,6 +27,7 @@ CONTAINS
                    ,EFFCS,EFFIS                                   & ! BAW
                    ,mp_physics                                    & ! BAW
                    ,coszen                                        & ! PAJ
+                   ,toaswup                                       & ! BAW add for TOA upward SW output
                    ,ids,ide, jds,jde, kds,kde                     & 
                    ,ims,ime, jms,jme, kms,kme                     &
                    ,its,ite, jts,jte, kts,kte                     ) 
@@ -126,6 +127,9 @@ CONTAINS
 ! 
    REAL, DIMENSION( ims:ime, jms:jme), INTENT(IN) :: COSZEN
 
+! BAW add TOA upward SW output
+   real, dimension( ims:ime, jms:jme),intent(inout) :: TOASWUP
+
 ! LOCAL VARS
  
    REAL, DIMENSION( its:ite ) ::                                  &
@@ -157,7 +161,14 @@ CONTAINS
 
    REAL, DIMENSION( its:ite, kts-1:kte, 2 ) ::                    &
                                                             reff, &    
-                                                             cwc    
+                                                             cwc
+
+   REAL, DIMENSION( its:ite, kts-1:kte ) ::                       & ! BAW add for microphysics coupling
+                                                         effcs2d, &
+                                                         effis2d 
+                                                           
+
+    
    REAL, DIMENSION( its: ite, kts-1:kte+1 ) ::                    &
                                                            P8W2D
    REAL, DIMENSION( its: ite, kts-1:kte ) ::                      &
@@ -590,7 +601,22 @@ CONTAINS
      F_EFFRAD = .TRUE.
   END IF
 !
+! BAW reverse vars
+
+  IF ( F_EFFRAD ) THEN
+    DO K=kts,kte
+    DO I=its,ite
+       nk=kme-1-K+kms
+       effcs2d(i,k) = EFFCS(i,nk,j)
+       effis2d(i,k) = EFFIS(i,nk,j)
+    ENDDO  
+    ENDDO
+    effcs2d(:,kts-1)=0.
+    effis2d(:,kts-1)=0.
+  END IF
 ! BAW end
+
+
 
 !
 ! ... Vertical profiles for ozone
@@ -624,9 +650,19 @@ CONTAINS
          end if
          reff(i,k,1) = 80.
          ! BAW overwrite effecttive radii with predicted quantities from mphys, if they are available
+         ! 
+         ! Note we only do this if the value is greater than zero. The value at kts-1 is initialised
+         ! to 0 (although WRF doesn't currently use any funky vertical decomposition), so we 
+         ! currently assume the value at kts-1 is always the surface value (nonsensical anyway for an
+         ! effective radius!). To take care of any possible division elsewhere by the value at kts-1, 
+         ! only update the effective radius for non-surface values
          if( ( F_EFFRAD ) ) then
-            reff(i,k,2) = EFFCS(i,k,j)
-            reff(i,k,1) = EFFIS(i,k,j)
+            if ( (effcs2d(i,kts-1)) .GT. 0. ) then
+               reff(i,k,2) = effcs2d(i,k)
+            endif
+            if ( (effis2d(i,kts-1)) .GT. 0. ) then 
+               reff(i,k,1) = effis2d(i,k)
+            endif
          end if 
         ! BAW end
       end do
@@ -855,7 +891,11 @@ CONTAINS
         else
           RSWTOA(i,j) = flx(i,kts) - flxd(i,kts) * SOLCON * cosz(i)
         endif
+        ! BAW add TOA upward SW output
+        TOASWUP(i,j) = RSWTOA(i,j) 
+        ! end BAW edit
       end do
+
 !
 ! ... Absorbed part in surface energy budget
 !
