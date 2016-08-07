@@ -27,7 +27,6 @@ CONTAINS
                    ,EFFCS,EFFIS                                   & ! BAW
                    ,mp_physics                                    & ! BAW
                    ,coszen                                        & ! PAJ
-                   ,toaswup                                       & ! BAW add for TOA upward SW output
                    ,ids,ide, jds,jde, kds,kde                     & 
                    ,ims,ime, jms,jme, kms,kme                     &
                    ,its,ite, jts,jte, kts,kte                     ) 
@@ -126,9 +125,6 @@ CONTAINS
 ! ... PAJ ...
 ! 
    REAL, DIMENSION( ims:ime, jms:jme), INTENT(IN) :: COSZEN
-
-! BAW add TOA upward SW output
-   real, dimension( ims:ime, jms:jme),intent(inout) :: TOASWUP
 
 ! LOCAL VARS
  
@@ -891,9 +887,6 @@ CONTAINS
         else
           RSWTOA(i,j) = flx(i,kts) - flxd(i,kts) * SOLCON * cosz(i)
         endif
-        ! BAW add TOA upward SW output
-        TOASWUP(i,j) = RSWTOA(i,j) 
-        ! end BAW edit
       end do
 
 !
