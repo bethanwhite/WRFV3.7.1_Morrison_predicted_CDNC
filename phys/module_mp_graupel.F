@@ -1,6 +1,6 @@
 !WRF:MODEL_LAYER:PHYSICS
 !
-! Current version is tagged as V3.5
+! Current version is tagged as V3.6
 ! Reference is Morrison et al. (2005), JAS, Morrison et al. (2009), MWR
 
 ! changes with respect to V1.4
@@ -81,6 +81,11 @@
 !    from the calculation of PSMLT and PGMLT
 ! 3) redundant initialization of PSMLT (non answer-changing)
 
+! hm, changes 7/12/16 for version 3.6
+
+! 1) changes and cleanup of code comments and variable names (non-answer changing)
+! 2) correction to universal gas constant (very small answer change)
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 MODULE module_mp_GRAUPEL
@@ -93,13 +98,13 @@ MODULE module_mp_GRAUPEL
    IMPLICIT NONE
 
    REAL, PARAMETER :: PI = 3.1415926535897932384626434
-   REAL, PARAMETER :: SQRTPI = 0.9189385332046727417803297
+   REAL, PARAMETER :: xxx = 0.9189385332046727417803297
 
    PUBLIC  ::  MP_GRAUPEL
    PUBLIC  ::  POLYSVP
 
    PRIVATE :: GAMMA, DERF1
-   PRIVATE :: PI, SQRTPI
+   PRIVATE :: PI, xxx
    PRIVATE :: M2005MICRO_GRAUPEL
 
 ! SWITCHES FOR MICROPHYSICS SCHEME
@@ -140,7 +145,7 @@ MODULE module_mp_GRAUPEL
 !             LOCAL SUB-GRID AND/OR GRID-SCALE VERTICAL VELOCITY 
 !             AT THE GRID POINT
 
-! NOTE: ONLY USED FOR PREDICTED DROPLET CONCENTRATION (INUM = 0)
+! NOTE: ONLY USED FOR PREDICTED DROPLET CONCENTRATION (INUM = 0) IN NON-WRF-CHEM VERSION OF CODE
 
      INTEGER, PRIVATE ::  IBASE
 
@@ -451,6 +456,9 @@ SUBROUTINE GRAUPEL_INIT
          LAMMAXG = 1./20.E-6
          LAMMING = 1./2000.E-6
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
+! note: these parameters only used by the non-wrf-chem version of the 
+!       scheme with predicted droplet number
 ! CCN SPECTRA FOR IACT = 1
 
 ! MARITIME
@@ -476,6 +484,9 @@ SUBROUTINE GRAUPEL_INIT
          MAP = 0.132
          MA = 0.0284
          RR = 8.3187
+! hm fix 6/23/16
+!         RR = 8.3187
+         RR = 8.3145
          BACT = VI*OSM*EPSM*MW*RHOA/(MAP*RHOW)
 
 ! AEROSOL SIZE DISTRIBUTION PARAMETERS CURRENTLY SET FOR MPACE
@@ -630,8 +641,7 @@ END SUBROUTINE GRAUPEL_INIT
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 SUBROUTINE MP_GRAUPEL(ITIMESTEP,                       &
-                TH, QV, QC, QR, QI, QS, QG, NI, NC, NS, NR, NG, TKE, &
-                NCTEND, &                           ! BAW DEBUG
+                TH, QV, QC, QR, QI, QS, QG, NI, NC, NS, NR, NG, TKE, NCTEND, &                       
                 NITEND,KZH,  &
                 RHO, PII, P, DT_IN, DZ, HT, W,          &
                 RAINNC, RAINNCV, SR                     &
@@ -930,15 +940,13 @@ END SUBROUTINE MP_GRAUPEL
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 ! THIS PROGRAM IS THE MAIN TWO-MOMENT MICROPHYSICS SUBROUTINE DESCRIBED BY
-! MORRISON ET AL. 2005 JAS; MORRISON AND PINTO 2005 JAS.
-! ADDITIONAL CHANGE IS ADDITION OF GRAUPEL MICROPHYSICS.
-! SCHEME IS DESCRIBED IN DETAIL BY MORRISON ET AL. (MONTHLY WEATHER REVIEW, IN PREP.)
+! MORRISON ET AL. 2005 JAS AND MORRISON ET AL. 2009 MWR
 
 ! THIS SCHEME IS A BULK DOUBLE-MOMENT SCHEME THAT PREDICTS MIXING
 ! RATIOS AND NUMBER CONCENTRATIONS OF FIVE HYDROMETEOR SPECIES:
-! CLOUD DROPLETS, CLOUD (SMALL) ICE, RAIN, SNOW, AND GRAUPEL.
+! CLOUD DROPLETS, CLOUD (SMALL) ICE, RAIN, SNOW, AND GRAUPEL/HAIL.
 
-! CODE STRUCTURE: MAIN SUBROUTINE IS 'M2005MICRO_GRAUPEL'. ALSO INCLUDED IN THIS FILE IS
+! CODE STRUCTURE: MAIN SUBROUTINE IS 'MORR_TWO_MOMENT'. ALSO INCLUDED IN THIS FILE IS
 ! 'FUNCTION POLYSVP', 'FUNCTION DERF1', AND
 ! 'FUNCTION GAMMA'.
 
@@ -4947,7 +4955,7 @@ END SUBROUTINE MP_GRAUPEL
           DO I=1,6
             SUM=SUM/YSQ+C(I)
           END DO
-          SUM=SUM/Y-Y+SQRTPI
+          SUM=SUM/Y-Y+xxx
           SUM=SUM+(Y-HALF)*LOG(Y)
           RES=EXP(SUM)
         ELSE
