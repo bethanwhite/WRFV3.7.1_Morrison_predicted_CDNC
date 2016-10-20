@@ -647,6 +647,7 @@ SUBROUTINE MP_GRAUPEL(ITIMESTEP,                       &
                 RAINNC, RAINNCV, SR                     &
                ,EFFCS,EFFIS                             & ! HM ADD 4/13/07 
                ,refl_10cm                           & ! GT
+               ,diagflag, do_radar_ref              & ! BAW
                ,grid_clock                          & ! GT
                ,grid_alarms                         & ! GT
                ,IDS,IDE, JDS,JDE, KDS,KDE               & ! domain dims
@@ -761,20 +762,9 @@ SUBROUTINE MP_GRAUPEL(ITIMESTEP,                       &
    INTEGER I,K,J
    
    REAL DT
-   LOGICAL:: dBZ_tstep ! GT
+   LOGICAL, OPTIONAL, INTENT(IN) :: diagflag ! BAW
+   INTEGER, OPTIONAL, INTENT(IN) :: do_radar_ref ! BAW
 
-! set dbz logical based on grid_clock
-!+---+
-! only calculate reflectivity when it is needed for output
-! in this instance, logical dbz_tstep is set to .true.
-! *******NOTE: FOR COUPLING WITH DRIVER MODEL OTHER THAN WRF,
-! THIS BLOCK OF CODE WILL NEED TO BE MODIFIED TO CORRECTLY
-! SET WHEN REFLECTIVIITY CALCULATION IS MADE
-
-      dBZ_tstep = .false.
-      if ( Is_alarm_tstep(grid_clock, grid_alarms(HISTORY_ALARM)) ) then
-         dBZ_tstep = .true.
-      endif
 
    ! Initialize tendencies (all set to 0) and transfer
    ! array to local variables
@@ -913,15 +903,18 @@ SUBROUTINE MP_GRAUPEL(ITIMESTEP,                       &
       SR(i,j) = SNOWRT1D/(PRECPRT1D+1.E-12)
 
 ! add reflectivity calculations
-! only calculate if logical parameter dbz_tstep = .true.
-
-         if (dBZ_tstep) then
+! BAW update to change logical flag for reflectivity calculation 
+!  from dBZ_tstep to diagflag and do_radar_ref
+         
+         IF ( PRESENT (diagflag) ) THEN
+         if (diagflag .and. do_radar_ref == 1) then
           call calc_refl10cm (qv1d, qr1d, qs1d, qg1d, t1d, p1d, dBZ,    &
                       kts, kte, i, j, nr1d, ns1d, ng1d)
           do k = kts, kte
              refl_10cm(i,k,j) = dBZ(k)
-          enddo
-         endif
+          enddo     
+        endif
+        ENDIF
 
    end do
    end do   

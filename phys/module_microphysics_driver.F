@@ -1032,6 +1032,8 @@ REAL, DIMENSION( ims:ime, kms:kme, jms:jme ),                        &
                     ,RAINNCV=RAINNCV                     &  !*
                     ,SR=SR                               &  !* !hm
                     ,REFL_10CM=refl_10cm                 &  ! added for radar reflectivity
+                    ,diagflag=diagflag                   &  ! added for radar reflectivity
+                    ,do_radar_ref=do_radar_ref           &  ! added for radar reflectivity
                     ,grid_clock=grid_clock               &  ! BAW implement Morrison predicted CDNC scheme
                     ,grid_alarms=grid_alarms             &  ! BAW implement Morrison predicted CDNC scheme
                     ,NCTEND=rncblten, NITEND=rniblten    &  ! BAW implement Morrison predicted CDNC scheme
